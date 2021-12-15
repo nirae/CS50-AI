@@ -62,18 +62,20 @@ def load_data(data_dir):
     images = []
     labels = []
 
-    for i in range(NUM_CATEGORIES):
-        for file in os.listdir(os.path.join(data_dir, str(i))):
-            path = os.path.join(data_dir, str(i), file)
+    # Loop on all categories
+    for category in range(NUM_CATEGORIES):
+        # Loop on each file in the category
+        for file in os.listdir(os.path.join(data_dir, str(category))):
+            path = os.path.join(data_dir, str(category), file)
             if os.path.isfile(path):
+                # Read the file
                 image = cv2.imread(path)
+                # Resize the file
                 resized = cv2.resize(image, (IMG_WIDTH, IMG_HEIGHT))
                 images.append(resized)
-                labels.append(str(i))
+                labels.append(category)
 
     return images, labels
-
-    # raise NotImplementedError
 
 
 def get_model():
@@ -86,35 +88,54 @@ def get_model():
     # https://towardsdatascience.com/traffic-sign-recognition-with-tensorflow-2-x-7ab4e8611a83
     # https://www.tensorflow.org/tutorials/keras/classification
 
+    # Base
+    # model = tf.keras.models.Sequential([
+    #     # Convolutional layer. Learn 32 filters using a 3x3 kernel
+    #     tf.keras.layers.Conv2D(
+    #         32, (3, 3), activation="relu", input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)
+    #     ),
+    #     # Max-pooling layer to reduce again, using 2x2 pool size
+    #     tf.keras.layers.MaxPooling2D(pool_size=(2, 2)),
+    #     # Flatten units
+    #     tf.keras.layers.Flatten(),
+    #     tf.keras.layers.Dense(128, activation="relu"),
+    #     tf.keras.layers.Dropout(0.5),
+    #     # Add an output layer with output units for all 10 digits
+    #     tf.keras.layers.Dense(NUM_CATEGORIES, activation="softmax")
+    # ])
+
+    # LeNet - 5
+    # model = tf.keras.models.Sequential([
+    #     tf.keras.layers.Conv2D(
+    #         6, (5, 5), activation="tanh", input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)
+    #     ),
+    #     tf.keras.layers.AveragePooling2D(pool_size=(2, 2)),
+    #     tf.keras.layers.Conv2D(
+    #         16, (5, 5), activation="tanh"
+    #     ),
+    #     tf.keras.layers.AveragePooling2D(pool_size=(2, 2)),
+    #     # Flatten units
+    #     tf.keras.layers.Flatten(),
+    #     tf.keras.layers.Dense(120, activation="tanh"),
+    #     tf.keras.layers.Dense(84, activation="tanh"),
+    #     tf.keras.layers.Dropout(0.5),
+    #     # Add an output layer with output units for all 10 digits
+    #     tf.keras.layers.Dense(NUM_CATEGORIES, activation="softmax")
+    # ])
+
     model = tf.keras.models.Sequential([
-        # Convolutional layer. Learn 32 filters using a 3x3 kernel
         tf.keras.layers.Conv2D(
             32, (3, 3), activation="relu", input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)
         ),
-        # tf.keras.layers.Conv2D(
-        #     6, (5, 5), activation="relu", input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)
-        # ),
-        # Max-pooling layer, using 2x2 pool size
-        tf.keras.layers.MaxPooling2D(pool_size=(2, 2)),
+        tf.keras.layers.AveragePooling2D(pool_size=(2, 2)),
         tf.keras.layers.Conv2D(
             32, (3, 3), activation="relu"
         ),
-        # tf.keras.layers.Conv2D(
-            # 16, (5, 5), activation="relu", input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)
-        # ),
-
-        tf.keras.layers.MaxPooling2D(pool_size=(2, 2)),
-
+        tf.keras.layers.AveragePooling2D(pool_size=(2, 2)),
         # Flatten units
         tf.keras.layers.Flatten(),
-
-        # Add a hidden layer with dropout
         tf.keras.layers.Dense(128, activation="relu"),
-        # tf.keras.layers.Dense(120, activation="relu"),
-        # tf.keras.layers.Dropout(0.5),
-        # tf.keras.layers.Dense(84, activation="relu"),
         tf.keras.layers.Dropout(0.5),
-
         # Add an output layer with output units for all 10 digits
         tf.keras.layers.Dense(NUM_CATEGORIES, activation="softmax")
     ])
@@ -126,8 +147,6 @@ def get_model():
     )
 
     return model
-
-    # raise NotImplementedError
 
 
 if __name__ == "__main__":
